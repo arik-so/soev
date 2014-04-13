@@ -10,6 +10,12 @@ class HomeController extends AppController{
 
     public function index(){
 
+        // show FB login option
+
+        // if not logged in, redirect to login page
+
+        // otherwise, get the client's location
+
 
 
     }
