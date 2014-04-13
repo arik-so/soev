@@ -68,7 +68,7 @@ class HomeController extends AppController{
 
         // print_r($fbLikes);
         // print_r($orderedFBLikes);
-        print_r($allFBLikeIDs);
+        // print_r($allFBLikeIDs);
 
         // let's find the local likes that are not within the facebook likes
 
@@ -128,6 +128,94 @@ class HomeController extends AppController{
 
 
 
+        if($_GET['lat']&& $_GET['lon']){
+
+            $location = [$_GET['lat'], $_GET['lon']];
+
+            $_SESSION['location'] = $location;
+
+
+
+        }
+
+
+
+        $location = $_SESSION['location'];
+
+        $hasLocation = !!$location;
+
+        $this->set('hasLocation', $hasLocation);
+
+        // found good matches
+
+        if($hasLocation){
+
+            $userObject['User']['latitude'] = $location[0];
+            $userObject['User']['longtitude'] = $location[1];
+            $this->User->save($userObject);
+
+            // $relevantMatches = ['asdasd' => 'asdasd']; // is an array
+            // $this->set('relevantMatches', $relevantMatches);
+
+
+
+
+
+            //
+
+
+
+
+
+        }else{
+
+
+
+        }
+
+
+        $userLocalID = $userObject['User']['id'];
+
+        $relevantMatches = [];
+
+
+        mysql_connect('localhost', 'soev', 'soev');
+        mysql_select_db('soev');
+
+        $queryString = 'SELECT *,COUNT(`interest_id`) AS `commonity` FROM `user_interests` WHERE `interest_id` IN ( SELECT `interest_id` FROM `user_interests` WHERE `user_id` = '.$userLocalID.' ) AND `user_id` != '.$userLocalID.' GROUP BY `user_id` ORDER BY `commonity` DESC';
+        $query = mysql_query($queryString);
+
+        while($row = mysql_fetch_assoc($query)){
+
+            $currentUser = $this->User->findById($row['user_id']);
+            $currentInterests = $currentUser['UserInterest'];
+
+            foreach($currentInterests as $interestIndex => &$currentInterest){
+
+                $currentInterest = $this->Interest->findById($currentInterest['interest_id']);
+
+                $currentInterestID = $currentInterest['Interest']['fbid'];
+                if(in_array($currentInterestID, $allFBLikeIDs)){
+
+                    $currentInterest['common'] = true;
+
+                }else{
+
+                    // unset($currentInterest); // sorry
+                    unset($currentInterests[$interestIndex]);
+
+                }
+
+
+            }
+
+            $currentUser['UserInterest'] = $currentInterests;
+
+            $relevantMatches[] = $currentUser;
+
+        }
+
+        $this->set('relevantMatches', $relevantMatches);
 
     }
 
