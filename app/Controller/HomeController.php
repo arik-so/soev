@@ -53,7 +53,7 @@ class HomeController extends AppController{
         }
 
 
-        echo '<pre>';
+        // echo '<pre>';
         $fbLikes = $facebook->api('/me/likes');
 
         $orderedFBLikes = [];
@@ -68,7 +68,7 @@ class HomeController extends AppController{
 
         // print_r($fbLikes);
         // print_r($orderedFBLikes);
-        // print_r($allFBLikeIDs);
+        print_r($allFBLikeIDs);
 
         // let's find the local likes that are not within the facebook likes
 
@@ -156,7 +156,8 @@ class HomeController extends AppController{
         echo $redirectURL;
 
         $params = [
-            'scope' => 'basic_info,user_birthday,user_interests,user_likes',
+            // 'scope' => 'basic_info,user_birthday,user_interests,user_likes',
+            'scope' => 'basic_info,user_birthday,user_interests',
             'redirect_uri' => $redirectURL
         ];
 
